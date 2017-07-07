@@ -23,15 +23,13 @@ public class PokeTools {
         int re;
         for(i=0; i< pokedex.size(); i++)
             if (pSearch.equalsIgnoreCase(pokedex.get(i).getPokeName())) {
-                temp = "";
+                temp = "found";
                 break;
             }
 
         if(temp.equals("temp")){
             re = -1;
-        }
-
-        else {
+        } else {
             re = i;
         }
 
