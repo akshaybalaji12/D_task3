@@ -1,11 +1,16 @@
 package com.example.admin.d_task3;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -20,6 +25,8 @@ public class SplashScreen extends Activity {
     private ProgressBar progressBar;
     private static String url,durl;
     private String TAG = MainActivity.class.getSimpleName();
+    RelativeLayout ch,inte;
+
 
 
     static ArrayList<PokeData> pokedex;
@@ -29,18 +36,33 @@ public class SplashScreen extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        ch = (RelativeLayout) findViewById(R.id.relLayout);
+        inte = (RelativeLayout) findViewById(R.id.relLayout2);
         pokedex = new ArrayList<>();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                new GetDetails().execute();
-                doWork();
-                startApp();
-                finish();
-            }
-        }).start();
 
+        if(isNetworkAvailable()) {
+            ch.setVisibility(View.VISIBLE);
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    new GetDetails().execute();
+                    doWork();
+                    startApp();
+                    finish();
+                }
+            }).start();
+        } else {
+            inte.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    private boolean isNetworkAvailable(){
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
     private void doWork(){
