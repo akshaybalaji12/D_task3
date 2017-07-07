@@ -5,9 +5,11 @@ import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -31,8 +33,8 @@ public class SearchFragment extends android.support.v4.app.Fragment {
     GetPD gpd;
     String pSearch;
     PokeDetails pokeDetails;
-    boolean check = false;
-    HistoryFragment hf = new HistoryFragment();
+    int check = -1,check2 = -1;
+
 
 
 
@@ -73,6 +75,23 @@ public class SearchFragment extends android.support.v4.app.Fragment {
 
             }
         });
+
+        search.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if(actionId == EditorInfo.IME_ACTION_SEARCH){
+                    if(!TextUtils.isEmpty(pName.getText())){
+                        gpd = new GetPD();
+                        gpd.execute();
+                    }
+                    else
+                        Toast.makeText(getContext(),"ENTER TEXT IN FIELD",Toast.LENGTH_SHORT).show();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         return view;
     }
 
@@ -80,20 +99,24 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         @Override
         protected void onPreExecute(){
             super.onPreExecute();
+            cv.setVisibility(View.GONE);
             pSearch = pName.getText().toString();
             pName.setText("");
             fl.setVisibility(View.VISIBLE);
+            check = PokeTools.check(pSearch,getContext());
+            if(check < 0){
+                Toast.makeText(getContext(),"POKEMON NOT FOUND!",Toast.LENGTH_SHORT).show();
+                fl.setVisibility(View.GONE);
+            }
         }
 
         @Override
         protected Void doInBackground(Void... params) {
 
-            check = PokeTools.check(pSearch,getContext());
-            if(check){
+            if(check != -1){
                 pokeDetails = PokeTools.getDetails();
-            }
-            else if(!check){
-                Toast.makeText(getContext(),"POKEMON NOT FOUND!",Toast.LENGTH_SHORT).show();
+                HistoryFragment hf = new HistoryFragment();
+                hf.getPHis(pokedex.get(check).getPokeName());
             }
             return null;
         }
@@ -101,14 +124,13 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         @Override
         protected void onPostExecute(Void result){
             super.onPostExecute(result);
-            if(check){
+            if(check != -1){
                 setDetails(pokeDetails);
             }
         }
     }
 
     private void setDetails(PokeDetails p){
-        hf.getPHis(pokedex.get(p.index).getPokeName());
         setPokeImage(p.index+1);
         pn.setText(pokedex.get(p.index).getPokeName());
         ht.setText(String.valueOf(p.ht));
@@ -117,7 +139,6 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         hp.setText(String.valueOf(p.hp));
         abi1.setText(p.ab1+""+" , "+""+p.ab2);
         cv.setVisibility(View.VISIBLE);
-        fl.setVisibility(View.GONE);
     }
 
     private void setPokeImage(int index) {

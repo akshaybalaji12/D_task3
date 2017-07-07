@@ -2,6 +2,7 @@ package com.example.admin.d_task3;
 
 
 import android.content.Context;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -9,30 +10,29 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.example.admin.d_task3.SplashScreen.pokedex;
-import static java.security.AccessController.getContext;
 
 public class PokeTools {
 
-    public static boolean re = false;
+    public static String TAG = PokeTools.class.getSimpleName();
+
     public static String temp = "temp";
     static int i=0;
 
-    public static boolean check(String pSearch,Context context){
-        for(i=0; i< pokedex.size(); i++){
-            if(pSearch.equalsIgnoreCase(pokedex.get(i).getPokeName())){
-                temp = pokedex.get(i).getPokeName();
+    public static int check(String pSearch,Context context){
+
+        int re;
+        for(i=0; i< pokedex.size(); i++)
+            if (pSearch.equalsIgnoreCase(pokedex.get(i).getPokeName())) {
+                temp = "";
                 break;
             }
-            else{
-                temp="temp";
-            }
+
+        if(temp.equals("temp")){
+            re = -1;
         }
 
-        if(!temp.equals("temp")){
-            re = true;
-        }
         else {
-            Toast.makeText(context,"POKEMON NOT FOUND",Toast.LENGTH_SHORT).show();
+            re = i;
         }
 
         return re;
