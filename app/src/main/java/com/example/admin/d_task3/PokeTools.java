@@ -3,6 +3,7 @@ package com.example.admin.d_task3;
 
 import android.content.Context;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -20,7 +21,7 @@ public class PokeTools {
 
     public static int check(String pSearch,Context context){
 
-        int re;
+        int re = -1;
         for(i=0; i< pokedex.size(); i++)
             if (pSearch.equalsIgnoreCase(pokedex.get(i).getPokeName())) {
                 temp = "found";
@@ -28,8 +29,10 @@ public class PokeTools {
             }
 
         if(temp.equals("temp")){
-            re = -1;
+            Toast.makeText(context,"POKEMON NOT FOUND!",Toast.LENGTH_SHORT).show();
+            SearchFragment.fl.setVisibility(View.GONE);
         } else {
+            temp = "temp";
             re = i;
         }
 

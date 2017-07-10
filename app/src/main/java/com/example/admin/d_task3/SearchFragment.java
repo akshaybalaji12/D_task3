@@ -1,10 +1,12 @@
 package com.example.admin.d_task3;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,11 +31,11 @@ public class SearchFragment extends android.support.v4.app.Fragment {
     ImageView pokeImg;
     TextView  abi1,wt,ht,hp,pn,typ;
     CardView cv;
-    FrameLayout fl;
+    static FrameLayout fl;
     GetPD gpd;
     String pSearch;
     PokeDetails pokeDetails;
-    int check = -1,check2 = -1;
+    int check;
 
 
 
@@ -66,12 +68,17 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!TextUtils.isEmpty(pName.getText())){
-                    gpd = new GetPD();
-                    gpd.execute();
+                if(isNetworkAvailable()){
+                    if(!TextUtils.isEmpty(pName.getText())){
+                        gpd = new GetPD();
+                        gpd.execute();
+                    } else {
+                        Toast.makeText(getContext(),"ENTER TEXT IN FIELD", Toast.LENGTH_SHORT).show();
+                    }
                 } else {
-                    Toast.makeText(getContext(),"ENTER TEXT IN FIELD", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(),"NO INTERNET CONNECTION",Toast.LENGTH_SHORT).show();
                 }
+
 
             }
         });
@@ -95,7 +102,7 @@ public class SearchFragment extends android.support.v4.app.Fragment {
         return view;
     }
 
-    public class GetPD extends AsyncTask<Void,Void,Void>{
+    private class GetPD extends AsyncTask<Void,Void,Void>{
         @Override
         protected void onPreExecute(){
             super.onPreExecute();
@@ -104,10 +111,6 @@ public class SearchFragment extends android.support.v4.app.Fragment {
             pName.setText("");
             fl.setVisibility(View.VISIBLE);
             check = PokeTools.check(pSearch,getContext());
-            if(check < 0){
-                Toast.makeText(getContext(),"POKEMON NOT FOUND!",Toast.LENGTH_SHORT).show();
-                fl.setVisibility(View.GONE);
-            }
         }
 
         @Override
@@ -152,5 +155,11 @@ public class SearchFragment extends android.support.v4.app.Fragment {
                 .into(pokeImg);
     }
 
+    private boolean isNetworkAvailable(){
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnectedOrConnecting();
+    }
 
 }
